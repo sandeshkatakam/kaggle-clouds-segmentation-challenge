@@ -51,10 +51,14 @@ def train(args):
         optimizer=optimizer,
         loaders=loaders,
         logdir=logdir,
-        num_epochs=4,
+        num_epochs=num_epochs,
         verbose=True
     )
+    torch.save(model.state_dict(),"../saved_models/model_smp.pth")
 
+## TODO: 
+# test.py
+# postprocess.py
 
 
 if __name__ == '__main__':

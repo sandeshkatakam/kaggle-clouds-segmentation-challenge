@@ -40,17 +40,6 @@
 * seaborn
 * scikit-learn
 
-
-## Features
-* Clear folder structure which is suitable for many deep learning projects.
-* `.json` config file support for convenient parameter tuning.
-* Customizable command line options for more convenient parameter tuning.
-* Checkpoint saving and resuming.
-* Abstract base classes for faster development:
-  * `BaseTrainer` handles checkpoint saving/resuming, training process logging, and more.
-  * `BaseDataLoader` handles batch generation, data shuffling, and validation data splitting.
-  * `BaseModel` provides basic model summary.
-
 ## Folder Structure
   ```
   kaggle-clouds-segmentation-challenge/
@@ -59,7 +48,8 @@
   ├── test.py - evaluation of trained model
   ├── data_loader/ - anything about data loading goes here
   │   └── data_loaders.py
-  │
+  |
+  ├──saved_models/ - contains the saved model weights after the training
   ├── data/ - default directory for storing input data
   │
   ├── model/ - models, losses, and metrics
@@ -77,22 +67,26 @@
 ## Usage
 ```py
 
-python train.py -bs 16 -num_epochs 20
+python train.py -bs <batch_size:int> -num_epochs <num_epochs:int>
+
+Default values:
+* batch_size : 16
+* num_epochs: 20
 
 ```
 
 
 
-### Resuming from checkpoints
+<!-- ### Resuming from checkpoints
 You can resume from a previously saved checkpoint by:
 
   ```
   python train.py --resume path/to/checkpoint
-  ```
+  ``` -->
 
 
 
-### Data Loader
+<!-- ### Data Loader
 
 ### Testing
 You can test trained model by running `test.py` passing path to the trained checkpoint by `--resume` argument.
@@ -139,7 +133,7 @@ By default, values of loss and metrics specified in config file, input images, a
 If you need more visualizations, use `add_scalar('tag', data)`, `add_image('tag', image)`, etc in the `trainer._train_epoch` method.
 `add_something()` methods in this template are basically wrappers for those of `tensorboardX.SummaryWriter` and `torch.utils.tensorboard.SummaryWriter` modules. 
 
-**Note**: You don't have to specify current steps, since `WriterTensorboard` class defined at `logger/visualization.py` will track current steps.
+**Note**: You don't have to specify current steps, since `WriterTensorboard` class defined at `logger/visualization.py` will track current steps. -->
 
 
 

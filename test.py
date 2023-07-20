@@ -6,7 +6,12 @@ import model.loss as module_loss
 import model.metric as module_metric
 import model.model as module_arch
 from parse_config import ConfigParser
+from utils.utils import plot_loss_curves
 
+## Make submission File from test.py
+## Convert the masks to the RLE 
+
+plot_loss_curves
 
 def main(config):
     logger = config.get_logger('test')
