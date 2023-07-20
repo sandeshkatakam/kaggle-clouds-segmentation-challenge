@@ -1,11 +1,8 @@
-# PyTorch Template Project
-PyTorch deep learning project made easy.
+# Kaggle Clouds Segmentation Challenge
 
-<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
-<!-- code_chunk_output -->
 
-* [Kaggle Clouds Segmentation Challenge](#pytorch-template-project)
+* [Kaggle Clouds Segmentation Challenge](#kaggle-clouds-segmentation-challenge)
 	* [Requirements](#requirements)
 	* [Features](#features)
 	* [Folder Structure](#folder-structure)
@@ -21,7 +18,6 @@ PyTorch deep learning project made easy.
 		* [Validation data](#validation-data)
 		* [Checkpoints](#checkpoints)
     * [Tensorboard Visualization](#tensorboard-visualization)
-	* [Contribution](#contribution)
 	* [TODOs](#todos)
 	* [License](#license)
 	* [Acknowledgements](#acknowledgements)
@@ -30,9 +26,20 @@ PyTorch deep learning project made easy.
 
 ## Requirements
 * Python >= 3.5 (3.6 recommended)
-* PyTorch >= 0.4 (1.2 recommended)
+* PyTorch >= 1.1 (1.2 recommended)
 * tqdm (Optional for `test.py`)
 * tensorboard >= 1.14 (see [Tensorboard Visualization](#tensorboard-visualization))
+* torchvision
+* numpy
+* tqdm
+* tensorboard>=1.14
+* catalyst
+* matplotlib
+* albumentations
+* segmentation-models-pytorch
+* seaborn
+* scikit-learn
+
 
 ## Features
 * Clear folder structure which is suitable for many deep learning projects.

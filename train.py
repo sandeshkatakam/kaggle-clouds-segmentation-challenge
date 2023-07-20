@@ -23,8 +23,6 @@ from catalyst.callbacks.checkpoint import CheckpointCallback
 
 
 
-
-
 def train(args):
     # fix random seeds for reproducibility
     SEED = 123
