@@ -2,72 +2,69 @@ import argparse
 import collections
 import torch
 import numpy as np
-import data_loader.data_loaders as module_data
-import model.loss as module_loss
-import model.metric as module_metric
-import model.model as module_arch
-from parse_config import ConfigParser
-from trainer import Trainer
-from utils import prepare_device
+from data_loader.data_loaders import *
+from torch.utils.data import DataLoader, Dataset
+from torch.utils.data.dataloader import default_collate
+from model.model import *
+#################################################
+# Importing catalyst for speeding up training process
+
+import catalyst
+from catalyst import dl
+from catalyst.contrib.losses.dice import DiceLoss
+from catalyst.contrib.losses.iou import IoULoss
+
+from catalyst.runners.supervised import SupervisedRunner
+from catalyst.callbacks.metrics.segmentation import DiceCallback
+from catalyst.callbacks.misc import EarlyStoppingCallback
+from catalyst.callbacks.checkpoint import CheckpointCallback
 
 
-# fix random seeds for reproducibility
-SEED = 123
-torch.manual_seed(SEED)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-np.random.seed(SEED)
 
-def main(config):
-    logger = config.get_logger('train')
 
-    # setup data_loader instances
-    data_loader = config.init_obj('data_loader', module_data)
-    valid_data_loader = data_loader.split_validation()
 
-    # build model architecture, then print to console
-    model = config.init_obj('arch', module_arch)
-    logger.info(model)
 
-    # prepare for (multi-device) GPU training
-    device, device_ids = prepare_device(config['n_gpu'])
-    model = model.to(device)
-    if len(device_ids) > 1:
-        model = torch.nn.DataParallel(model, device_ids=device_ids)
 
-    # get function handles of loss and metrics
-    criterion = getattr(module_loss, config['loss'])
-    metrics = [getattr(module_metric, met) for met in config['metrics']]
+def train(args):
+    # fix random seeds for reproducibility
+    SEED = 123
+    torch.manual_seed(SEED)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(SEED)
+    num_workers = 0
+    bs = args.batch_size
+    train_dataset = CloudDataSet(df = train,datatype = "train",img_ids = train_ids,transforms = get_training_augmentation(), preprocessing = get_preprocessing(preprocessing_fn))
+    valid_dataset = CloudDataSet(df = train,datatype = "valid",img_ids = valid_ids,transforms = get_validation_augmentation(), preprocessing = get_preprocessing(preprocessing_fn))
 
-    # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
-    trainable_params = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = config.init_obj('optimizer', torch.optim, trainable_params)
-    lr_scheduler = config.init_obj('lr_scheduler', torch.optim.lr_scheduler, optimizer)
+    train_loader = DataLoader(train_dataset, batch_size=bs, shuffle=True, num_workers=num_workers)
+    valid_loader = DataLoader(valid_dataset, batch_size=bs, shuffle=False, num_workers=num_workers)
+    loaders = {
+        "train": train_loader,
+        "valid": valid_loader
+    }
+    num_epochs = args.num_epochs 
+    logdir = "../logdir/segmentation/"
+    runner = SupervisedRunner()
+    runner.train(
+        model=model,
+        engine=dl.GPUEngine("cuda:0"),
+        criterion=criterion,
+        optimizer=optimizer,
+        loaders=loaders,
+        logdir=logdir,
+        num_epochs=4,
+        verbose=True
+    )
 
-    trainer = Trainer(model, criterion, metrics, optimizer,
-                      config=config,
-                      device=device,
-                      data_loader=data_loader,
-                      valid_data_loader=valid_data_loader,
-                      lr_scheduler=lr_scheduler)
-
-    trainer.train()
 
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='PyTorch Template')
-    args.add_argument('-c', '--config', default=None, type=str,
-                      help='config file path (default: None)')
-    args.add_argument('-r', '--resume', default=None, type=str,
-                      help='path to latest checkpoint (default: None)')
-    args.add_argument('-d', '--device', default=None, type=str,
-                      help='indices of GPUs to enable (default: all)')
+    import argparse
+    args = argparse.ArgumentParser(description='kaggle-clouds-segmentation-challenge')
+    args.add_argument('-bs', '--batch_size', default=16, type=int,
+                      help='Batch Size (default: 16)')
+    args.add_argument('-epochs', '--num_epochs', default=20, type=str,
+                      help='Number of Epochs(default: 20)')
 
-    # custom cli options to modify configuration from default values given in json file.
-    CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
-    options = [
-        CustomArgs(['--lr', '--learning_rate'], type=float, target='optimizer;args;lr'),
-        CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
-    ]
-    config = ConfigParser.from_args(args, options)
-    main(config)
+    train(args)
