@@ -7,16 +7,11 @@
 	* [Features](#features)
 	* [Folder Structure](#folder-structure)
 	* [Usage](#usage)
-	* [Customization](#customization)
-		* [Custom CLI options](#custom-cli-options)
-		* [Data Loader](#data-loader)
-		* [Trainer](#trainer)
+	* [Components](#components)
 		* [Model](#model)
 		* [Loss](#loss)
 		* [metrics](#metrics)
-		* [Additional logging](#additional-logging)
 		* [Validation data](#validation-data)
-		* [Checkpoints](#checkpoints)
     * [Tensorboard Visualization](#tensorboard-visualization)
 	* [TODOs](#todos)
 	* [License](#license)
@@ -65,17 +60,47 @@
   ```
 
 ## Usage
+### Download the dataset from kaggle:
+* Install kaggle using pip 
+```py 
+pip install kaggle
+```
+* Go to your kaggle account and download the API token and place it in the `~/.kaggle/` directory
+* Download the dataset:
 ```py
+kaggle competitions download -c understanding_cloud_organization
+```
+* unzip the dataset into our project folder
+```bash
+cd kaggle-clouds-segmentation-challenge
+mkdir dataset
 
-python train.py -bs <batch_size:int> -num_epochs <num_epochs:int>
+# Go to the folder where the dataset is downloaded and use the below command
+unzip understanding_cloud_organization.zip -d kaggle-clouds-segmentation-challenge/dataset/
+```
+
+
+```py
+python train.py -bs <batch_size:int> -epochs <num_epochs:int>
 
 Default values:
 * batch_size : 16
 * num_epochs: 20
 
 ```
+### Testing using the saved model:
+* This generates a submission file for kaggle 
+```py
+python3 test.py --path <path/to/submission/file>
+
+```
 
 
+
+## Tensorboard Visualization
+Visualization of Experiments using TensorBoard
+
+[Link to TensorBoard](https://tensorboard.dev/experiment/BMN3ZUdpRaaxDE48xCQ8WA/#scalars)
 
 <!-- ### Resuming from checkpoints
 You can resume from a previously saved checkpoint by:
@@ -108,7 +133,6 @@ You can test trained model by running `test.py` passing path to the trained chec
   }
   ```
 
-### Tensorboard Visualization
 This template supports Tensorboard visualization by using either  `torch.utils.tensorboard` or [TensorboardX](https://github.com/lanpa/tensorboardX).
 
 1. **Install**

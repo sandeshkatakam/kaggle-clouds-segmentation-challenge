@@ -2,13 +2,13 @@ import argparse
 import collections
 import torch
 import numpy as np
-from data_loader.data_loaders import *
+from data_loader import *
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.dataloader import default_collate
 from model.model import *
 #################################################
 # Importing catalyst for speeding up training process
-
+from sklearn.model_selection import train_test_split
 import catalyst
 from catalyst import dl
 from catalyst.contrib.losses.dice import DiceLoss
@@ -25,6 +25,28 @@ from catalyst.callbacks.checkpoint import CheckpointCallback
 
 def train(args):
     # fix random seeds for reproducibility
+    path = "/home/sandesh/Downloads/MyGitHubArch/kaggle-clouds-segmentation-challenge/dataset"
+    train = pd.read_csv(f'{path}/train.csv')
+    sub = pd.read_csv(f'{path}/sample_submission.csv')
+
+
+    train["label"] = train["Image_Label"].apply(lambda x: x.split("_")[1])
+    train["im_id"] = train["Image_Label"].apply(lambda x: x.split("_")[0])
+
+    sub["label"] = sub["Image_Label"].apply(lambda x: x.split("_")[1])
+    sub["im_id"] = sub["Image_Label"].apply(lambda x: x.split("_")[0])
+
+    DEVICE = "cuda"
+
+    print(train)
+    id_mask_count = train.loc[train["EncodedPixels"].isnull() == False, "Image_Label"].apply(lambda x:x.split("_")[0]).value_counts().reset_index().rename(columns = {"index":"img_id","Image_Label":"count"})
+    print(id_mask_count)
+    id_mask_count.columns = ["img_id", "count"]
+    print(id_mask_count)
+    
+
+    train_ids, valid_ids = train_test_split(id_mask_count['img_id'].values, random_state=42, stratify=id_mask_count['count'], test_size=0.1)
+    test_ids = sub['Image_Label'].apply(lambda x: x.split('_')[0]).drop_duplicates().values
     SEED = 123
     torch.manual_seed(SEED)
     torch.backends.cudnn.deterministic = True
@@ -41,7 +63,7 @@ def train(args):
         "train": train_loader,
         "valid": valid_loader
     }
-    num_epochs = args.num_epochs 
+    num_epochs = args.num_epochs
     logdir = "../logdir/segmentation/"
     runner = SupervisedRunner()
     runner.train(
@@ -63,10 +85,13 @@ def train(args):
 
 if __name__ == '__main__':
     import argparse
-    args = argparse.ArgumentParser(description='kaggle-clouds-segmentation-challenge')
-    args.add_argument('-bs', '--batch_size', default=16, type=int,
+    parser = argparse.ArgumentParser(description='kaggle-clouds-segmentation-challenge')
+    parser.add_argument('-bs', '--batch_size', default=16, type=int,
                       help='Batch Size (default: 16)')
-    args.add_argument('-epochs', '--num_epochs', default=20, type=str,
+    parser.add_argument('-epochs', '--num_epochs', default=20, type=int,
                       help='Number of Epochs(default: 20)')
+    parser.add_argument('-ds_path', '--dataset_path', default="~/Downloads", type=str,
+                      help='Input the path to the kaggle clouds segmentation dataset')
+    args = parser.parse_args()
 
     train(args)

@@ -7,14 +7,15 @@ import model.metric as module_metric
 import model.model as module_arch
 from parse_config import ConfigParser
 from utils.utils import plot_loss_curves
-
+from post_process import *
 ## Make submission File from test.py
 ## Convert the masks to the RLE 
 
-plot_loss_curves
+
 
 def main(config):
-    logger = config.get_logger('test')
+    ## write test data loaders and import thresholding from postprocess script
+
 
     # setup data_loader instances
     data_loader = getattr(module_data, config['data_loader']['type'])(

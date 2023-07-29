@@ -6,6 +6,8 @@ from catalyst.callbacks.checkpoint import CheckpointCallback
 from catalyst import dl
 from catalyst.contrib.losses.dice import DiceLoss
 from catalyst.contrib.losses.iou import IoULoss
+import torch
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 ENCODER = "resnet50"
 ENCODER_WEIGHTS = "imagenet"
