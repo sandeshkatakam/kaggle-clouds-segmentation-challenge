@@ -90,8 +90,10 @@ Default values:
 ```
 ### Testing using the saved model:
 * This generates a submission file for kaggle 
+Provide paths to the saved model after training and path to the submission file downloaded from kaggle in the first step for the below command 
+
 ```py
-python3 test.py --path <path/to/submission/file>
+python3 test.py --model_path <path/to/saved_model/> --sub_path <path/to/submission/file> 
 
 ```
 
