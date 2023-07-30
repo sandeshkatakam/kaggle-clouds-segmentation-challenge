@@ -76,11 +76,12 @@ def train(args):
         num_epochs=num_epochs,
         verbose=True
     )
+    save_path = "../saved_models/"
+    if not os.path.isdir(save_path):
+        os.makedirs(save_path)
     torch.save(model.state_dict(),"../saved_models/model_smp.pth")
 
-## TODO: 
-# test.py
-# postprocess.py
+
 
 
 if __name__ == '__main__':

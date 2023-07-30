@@ -77,26 +77,18 @@ def save_predicted_masks():
 #       threshold_ar[i,j][output_ar_resized[i,j,:,:] > threshold_class[j]] = 1
   
 
-def thresholding():
-  encoded_pixels = []
-  loaders = {"infer": valid_loader}
+def load_outputs_and_masks(output_arr_path, mask_arr_path):
+  output_arr = np.loadtxt(output_arr_path)
+  output_arr = np.reshape(output_arr, (2220, 350, 525))
+  mask_arr_valid = np.loadtxt(mask_arr_path)
+  mask_arr_valid = np.reshape(mask_arr_valid, (2220, 350, 525))
+  return output_arr, mask_arr_valid
 
-  valid_masks = []
-  probabilities = np.zeros((2220, 350, 525))
-  for i, (batch, output) in enumerate(zip(
-          valid_dataset, runner.callbacks[0].predictions["logits"])):
-      image, mask = batch
-      for m in mask:
-          if m.shape != (350, 525):
-              m = cv2.resize(m, dsize=(525, 350), interpolation=cv2.INTER_LINEAR)
-          valid_masks.append(m)
-
-      for j, probability in enumerate(output):
-          if probability.shape != (350, 525):
-              probability = cv2.resize(probability, dsize=(525, 350), interpolation=cv2.INTER_LINEAR)
-          probabilities[i * 4 + j, :, :] = probability
 
 def find_optimal_values():
+  output_arr_path = "/content/drive/MyDrive/clouds-segmentation-dataset/output_ar_valid.txt""
+  mask_arr_path = "/content/drive/MyDrive/clouds-segmentation-dataset/mask_ar_valid.txt"
+  output_arr, mask_arr_valid = load_outputs_and_masks(path1, path2)
   class_params = {}
   for class_id in range(4):
       print(class_id)
@@ -111,7 +103,7 @@ def find_optimal_values():
                   masks.append(predict)
 
               d = []
-              for i, j in zip(masks, valid_masks[class_id::4]):
+              for i, j in zip(masks, mask_arr_valid[class_id::4]):
                   if (i.sum() == 0) & (j.sum() == 0):
                       d.append(1)
                   else:
